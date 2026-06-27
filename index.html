@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Transit Master Dashboard</title>
+    <style>
+        :root {
+            --bg: #F4F6F9;
+            --card-bg: #FFFFFF;
+            --primary: #0F172A;
+            --accent: #0EA5E9;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header & Main Tabs */
+        .header-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 { margin-top: 0; font-size: 28px; color: var(--primary); }
+        
+        .main-tabs {
+            display: inline-flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            background: var(--border);
+            border-radius: 10px;
+            padding: 5px;
+            margin-top: 15px;
+            gap: 5px;
+        }
+        .main-tab-btn {
+            background: transparent;
+            border: none;
+            padding: 12px 20px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .main-tab-btn.active {
+            background: var(--card-bg);
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Section Containers */
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* Controls Panel (Used in Calc & Navigator) */
+        .controls-panel {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+        .control-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-weight: 600; font-size: 14px; color: var(--primary); }
+        input[type="number"], select {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 15px;
+            background: white;
+            color: var(--primary);
+            font-weight: 500;
+        }
+        input[type="range"] { width: 100%; cursor: pointer; }
+        .slider-val { font-weight: 700; color: var(--accent); }
+        .action-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .action-btn:hover { background: #0284C7; }
+
+        /* Route Navigator Output */
+        .route-output-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .route-summary {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        .route-path {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        .route-node {
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .route-arrow {
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+
+        /* Tables Styles */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+        th { background: var(--primary); color: white; font-size: 13px; text-transform: uppercase; }
+        tr:hover { background-color: #F8FAFC; }
+
+        /* Analytics Sub-Tabs & Grid */
+        .sub-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .sub-tab-btn {
+            background: var(--border);
+            border: none;
+            padding: 10px 20px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        .sub-tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        .analytics-view { display: none; }
+        .analytics-view.active { display: contents; }
+
+        /* Badges & Highlights */
+        .rank-badge {
+            display: inline-block;
+            width: 28px; height: 28px; line-height: 28px; text-align: center;
+            border-radius: 50%; font-weight: bold; color: white; font-size: 13px;
+        }
+        .rank-gold { background: #F59E0B; }
+        .rank-silver { background: #94A3B8; }
+        .rank-bronze { background: #D97706; }
+        .rank-standard { background: var(--text-muted); }
+        .rank-danger { background: #EF4444; }
+        .coord-val { font-family: ui-monospace, monospace; font-weight: 700; color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-card">
+        <h1>Metropolitan Transit Dashboard</h1>
+        <div class="main-tabs">
+            <button class="main-tab-btn active" onclick="setMainTab('calculator')">📍 Coordinate Planner</button>
+            <button class="main-tab-btn" onclick="setMainTab('navigator')">🗺️ Route Navigator (A to B)</button>
+            <button class="main-tab-btn" onclick="setMainTab('analytics')">📊 Network Analytics</button>
+        </div>
+    </div>
+
+    <!-- SECTION 1: COORDINATE CALCULATOR -->
+    <div id="calculator" class="section active">
+        <div class="controls-panel">
+            <div class="control-group">
+                <label>Archway Center X</label>
+                <input type="number" id="originX" value="0" oninput="updateCoords()">
+            </div>
+            <div class="control-group">
+                <label>Archway Center Z</label>
+                <input type="number" id="originZ" value="0" oninput="updateCoords()">
+            </div>
+            <div class="control-group">
+                <label>Block Scale (Distance per segment)</label>
+                <div>
+                    <input type="range" id="scaleSlider" min="50" max="1000" step="10" value="100" oninput="updateCoords()">
+                    <div style="text-align:right; font-size: 14px;">Scale: <span id="scaleDisplay" class="slider-val">100</span> blocks</div>
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Station Name</th>
+                        <th>Minecraft X</th>
+                        <th>Minecraft Z</th>
+                        <th>Relative Grid Position</th>
+                    </tr>
+                </thead>
+                <tbody id="coord-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SECTION 2: ROUTE NAVIGATOR -->
+    <div id="navigator" class="section">
+        <div class="controls-panel">
+            <div class="control-group">
+                <label>Start Station</label>
+                <select id="start-station"></select>
+            </div>
+            <div class="control-group">
+                <label>Destination Station</label>
+                <select id="end-station"></select>
+            </div>
+            <div class="control-group">
+                <label>Network State</label>
+                <select id="route-network">
+                    <option value="full">Use Full Network (Gray Line Active)</option>
+                    <option value="nogray">Classic Core (No Gray Line)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <button class="action-btn" onclick="calculateRoute()">Find Shortest Route</button>
+            </div>
+        </div>
+        <div id="route-output-container" style="display: none;">
+            <div class="route-output-card">
+                <div class="route-summary" id="route-summary"></div>
+                <div class="route-path" id="route-path"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3: NETWORK ANALYTICS -->
+    <div id="analytics" class="section">
+        <div class="sub-tabs">
+            <button class="sub-tab-btn active" id="btn-ana-full" onclick="setAnalyticsTab('full')">Full Network (With Gray Line)</button>
+            <button class="sub-tab-btn" id="btn-ana-nogray" onclick="setAnalyticsTab('nogray')">No Gray Line (Classic Core)</button>
+        </div>
+
+        <div class="analytics-grid">
+            <!-- Full Network View -->
+            <div id="analytics-full" class="analytics-view active">
+                <div class="table-container">
+                    <h3 style="padding: 16px 16px 0; margin:0; color: var(--primary);">Avg Commute (Closeness)</h3>
+                    <table>
+                        <thead><tr><th>Rank</th><th>Station</th><th>Avg Stops</th></tr></thead>
+                        <tbody id="full-avg-body"></tbody>
+                    </table>
+                </div>
+                <div class="table-container">
+                    <h3 style="padding: 16px 16px 0; margin:0; color: var(--primary);">Route Frequency (Bottlenecks)</h3>
+                    <table>
+                        <thead><tr><th>Rank</th><th>Station</th><th>Routes Processed</th></tr></thead>
+                        <tbody id="full-freq-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- No Gray Line View -->
+            <div id="analytics-nogray" class="analytics-view">
+                <div class="table-container">
+                    <h3 style="padding: 16px 16px 0; margin:0; color: var(--primary);">Avg Commute (Closeness)</h3>
+                    <table>
+                        <thead><tr><th>Rank</th><th>Station</th><th>Avg Stops</th></tr></thead>
+                        <tbody id="nogray-avg-body"></tbody>
+                    </table>
+                </div>
+                <div class="table-container">
+                    <h3 style="padding: 16px 16px 0; margin:0; color: var(--primary);">Route Frequency (Bottlenecks)</h3>
+                    <table>
+                        <thead><tr><th>Rank</th><th>Station</th><th>Routes Processed</th></tr></thead>
+                        <tbody id="nogray-freq-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ==========================================
+// 1. DATA AND NETWORK STRUCTURES
+// ==========================================
+const nodes = [
+    {id: 'Archway', rx: 0, rz: 0}, {id: 'Solaris', rx: -4.5, rz: -3}, {id: 'Avelon', rx: -3, rz: -3},
+    {id: 'Strata', rx: -2, rz: -3}, {id: 'Nether', rx: -1, rz: -3}, {id: 'Abine', rx: -3, rz: -2.45},
+    {id: 'Vandrisil', rx: -3, rz: -1.95}, {id: 'Unus Arbor', rx: -3, rz: -1.45}, {id: 'Sandy Coast', rx: -3, rz: -0.95},
+    {id: 'Piazza', rx: -3, rz: -0.45}, {id: 'Cavi', rx: -3, rz: 0}, {id: 'Pumpkins', rx: -3, rz: 0.85},
+    {id: 'Audia', rx: -3, rz: 1.65}, {id: 'Tree Island', rx: -3, rz: 3.5}, {id: 'Clover', rx: -3, rz: 4.5},
+    {id: 'Flowerfield', rx: -2, rz: -1.75}, {id: 'Lilac Cave', rx: -1, rz: -1}, {id: 'Concourse', rx: -0.5, rz: -0.5},
+    {id: 'Skytop', rx: 0.5, rz: 0.5}, {id: 'Muchid', rx: 2.5, rz: 1.5}, {id: 'Oakridge', rx: -2, rz: 0},
+    {id: 'Atrium', rx: -1.3, rz: 0}, {id: 'Red Light', rx: -0.7, rz: 0}, {id: 'Dizzy Fountain', rx: 2, rz: 0},
+    {id: 'Chasm', rx: 3.5, rz: 0}, {id: 'Livia', rx: 4.7, rz: 0}, {id: 'Tangent', rx: 5.35, rz: 0},
+    {id: 'Treetop', rx: 6, rz: 0}, {id: 'Atoll', rx: 4.25, rz: 1.5}, {id: 'Lollipop', rx: 6, rz: 1.5},
+    {id: 'Pyramid', rx: 1, rz: 1.5}, {id: 'Lilycave', rx: -0.5, rz: 1.5}, {id: 'Two-Tops', rx: 7, rz: 0.75},
+    {id: 'Parkside', rx: 7, rz: 1.5}, {id: 'Stone Mountain', rx: 8, rz: 1.5}, {id: 'Aquarium', rx: 9, rz: 1.5},
+    {id: 'Ondel', rx: 9, rz: 3.8}, {id: 'Lave', rx: 7.5, rz: 3.8}, {id: 'Mini Valley', rx: 2.5, rz: 3.8},
+    {id: 'Highgate', rx: -3.75, rz: 3.8}, {id: 'Mount Wave', rx: -4.5, rz: 3.5}, {id: 'Baycove', rx: -0.8, rz: 0.85},
+    {id: 'Village', rx: -1, rz: 2.5}, {id: 'Lake Valley', rx: -4.75, rz: 0.5}
+];
+
+const networkFull = {
+    "Solaris": ["Avelon", "Lake Valley"], "Avelon": ["Solaris", "Strata", "Abine", "Flowerfield"],
+    "Strata": ["Avelon", "Nether"], "Nether": ["Strata", "Mount Wave"],
+    "Abine": ["Avelon", "Vandrisil"], "Vandrisil": ["Abine", "Unus Arbor"],
+    "Unus Arbor": ["Vandrisil", "Sandy Coast"], "Sandy Coast": ["Unus Arbor", "Piazza"],
+    "Piazza": ["Sandy Coast", "Cavi"], "Cavi": ["Piazza", "Pumpkins", "Oakridge"],
+    "Pumpkins": ["Cavi", "Audia"], "Audia": ["Pumpkins", "Tree Island"],
+    "Tree Island": ["Audia", "Clover", "Mini Valley", "Highgate"], "Clover": ["Tree Island", "Livia", "Lake Valley"],
+    "Flowerfield": ["Avelon", "Lilac Cave"], "Lilac Cave": ["Flowerfield", "Concourse", "Baycove"],
+    "Concourse": ["Lilac Cave", "Archway"], "Archway": ["Concourse", "Skytop", "Red Light", "Dizzy Fountain"],
+    "Skytop": ["Archway", "Muchid"], "Muchid": ["Skytop", "Atoll", "Pyramid"],
+    "Oakridge": ["Cavi", "Atrium"], "Atrium": ["Oakridge", "Red Light"],
+    "Red Light": ["Atrium", "Archway"], "Dizzy Fountain": ["Archway", "Chasm"],
+    "Chasm": ["Dizzy Fountain", "Livia", "Aquarium"], "Livia": ["Chasm", "Tangent", "Aquarium", "Clover"],
+    "Tangent": ["Livia", "Treetop"], "Treetop": ["Tangent", "Lollipop"],
+    "Lollipop": ["Treetop", "Atoll", "Two-Tops", "Parkside"], "Atoll": ["Lollipop", "Muchid"],
+    "Pyramid": ["Muchid", "Lilycave"], "Lilycave": ["Pyramid"],
+    "Two-Tops": ["Lollipop"], "Parkside": ["Lollipop", "Stone Mountain"],
+    "Stone Mountain": ["Parkside", "Aquarium"], "Aquarium": ["Stone Mountain", "Ondel", "Chasm", "Livia"],
+    "Ondel": ["Aquarium", "Lave"], "Lave": ["Ondel", "Mini Valley"],
+    "Mini Valley": ["Lave", "Tree Island"], "Highgate": ["Tree Island", "Mount Wave"],
+    "Mount Wave": ["Highgate", "Nether"], "Baycove": ["Lilac Cave", "Village"],
+    "Village": ["Baycove"], "Lake Valley": ["Clover", "Solaris"]
+};
+
+// No Gray Line Network Logic
+const networkNoGray = JSON.parse(JSON.stringify(networkFull));
+delete networkNoGray["Lake Valley"];
+networkNoGray["Solaris"] = ["Avelon"];
+networkNoGray["Clover"] = ["Tree Island"];
+networkNoGray["Livia"] = ["Chasm", "Tangent"];
+networkNoGray["Chasm"] = ["Dizzy Fountain", "Livia"];
+networkNoGray["Aquarium"] = ["Stone Mountain", "Ondel"];
+
+const stationNames = Object.keys(networkFull).sort();
+
+// ==========================================
+// 2. INITIALIZATION & UI ROUTING
+// ==========================================
+window.onload = function() {
+    // Populate dropdowns
+    const startSelect = document.getElementById('start-station');
+    const endSelect = document.getElementById('end-station');
+    stationNames.forEach(stn => {
+        startSelect.add(new Option(stn, stn));
+        endSelect.add(new Option(stn, stn));
+    });
+    // Set a default demo route
+    startSelect.value = "Solaris";
+    endSelect.value = "Lollipop";
+
+    // Run Initial Math
+    updateCoords();
+    renderLeaderboards();
+};
+
+function setMainTab(tabId) {
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.main-tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
+function setAnalyticsTab(mode) {
+    document.getElementById('analytics-full').classList.remove('active');
+    document.getElementById('analytics-nogray').classList.remove('active');
+    document.getElementById('btn-ana-full').classList.remove('active');
+    document.getElementById('btn-ana-nogray').classList.remove('active');
+    
+    document.getElementById('analytics-' + mode).classList.add('active');
+    document.getElementById('btn-ana-' + mode).classList.add('active');
+}
+
+// ==========================================
+// 3. COORDINATE PLANNER LOGIC
+// ==========================================
+function updateCoords() {
+    const originX = parseInt(document.getElementById('originX').value) || 0;
+    const originZ = parseInt(document.getElementById('originZ').value) || 0;
+    const scale = parseInt(document.getElementById('scaleSlider').value);
+    document.getElementById('scaleDisplay').innerText = scale;
+
+    const tbody = document.getElementById('coord-tbody');
+    tbody.innerHTML = '';
+
+    nodes.forEach(node => {
+        const mcX = Math.round(originX + (node.rx * scale));
+        const mcZ = Math.round(originZ + (node.rz * scale));
+        
+        tbody.innerHTML += `
+            <tr>
+                <td style="font-weight: 700;">${node.id}</td>
+                <td class="coord-val">X: ${mcX}</td>
+                <td class="coord-val">Z: ${mcZ}</td>
+                <td style="color: var(--text-muted);">[${node.rx}, ${node.rz}]</td>
+            </tr>
+        `;
+    });
+}
+
+// ==========================================
+// 4. ROUTE NAVIGATOR (SHORTEST PATH A TO B)
+// ==========================================
+function calculateRoute() {
+    const start = document.getElementById('start-station').value;
+    const end = document.getElementById('end-station').value;
+    const mode = document.getElementById('route-network').value;
+    const graph = mode === 'full' ? networkFull : networkNoGray;
+    
+    const outputContainer = document.getElementById('route-output-container');
+    const summaryEl = document.getElementById('route-summary');
+    const pathEl = document.getElementById('route-path');
+    
+    outputContainer.style.display = 'block';
+
+    if (start === end) {
+        summaryEl.innerText = "You are already at your destination!";
+        pathEl.innerHTML = `<div class="route-node">${start}</div>`;
+        return;
+    }
+
+    // Safety check for No Gray Line missing stations (Lake Valley)
+    if (mode === 'nogray' && (start === 'Lake Valley' || end === 'Lake Valley')) {
+        summaryEl.innerText = "Error: Lake Valley does not exist in the Classic Network without the Gray Line!";
+        pathEl.innerHTML = '';
+        return;
+    }
+
+    // BFS Shortest Path
+    let queue = [[start]];
+    let visited = new Set([start]);
+    let shortestPath = null;
+
+    while (queue.length > 0) {
+        let path = queue.shift();
+        let current = path[path.length - 1];
+
+        if (current === end) {
+            shortestPath = path;
+            break;
+        }
+
+        graph[current].forEach(neighbor => {
+            if (!visited.has(neighbor)) {
+                visited.add(neighbor);
+                queue.push([...path, neighbor]);
+            }
+        });
+    }
+
+    if (shortestPath) {
+        const totalStops = shortestPath.length - 1;
+        summaryEl.innerText = `Total Travel Time: ${totalStops} Stops`;
+        
+        // Draw the path
+        let pathHTML = '';
+        shortestPath.forEach((station, idx) => {
+            pathHTML += `<div class="route-node">${station}</div>`;
+            if (idx < shortestPath.length - 1) {
+                pathHTML += `<div class="route-arrow">➔</div>`;
+            }
+        });
+        pathEl.innerHTML = pathHTML;
+    } else {
+        summaryEl.innerText = "No route found!";
+        pathEl.innerHTML = '';
+    }
+}
+
+// ==========================================
+// 5. NETWORK ANALYTICS LOGIC
+// ==========================================
+function calcCloseness(networkObj) {
+    const stations = Object.keys(networkObj);
+    let results = [];
+    stations.forEach(start => {
+        let dists = { [start]: 0 };
+        let q = [start];
+        while (q.length > 0) {
+            let curr = q.shift();
+            networkObj[curr].forEach(n => {
+                if (dists[n] === undefined) { dists[n] = dists[curr] + 1; q.push(n); }
+            });
+        }
+        let total = 0, max = 0;
+        Object.values(dists).forEach(d => { total += d; if(d > max) max = d; });
+        results.push({ name: start, avg: total / (stations.length - 1) });
+    });
+    return results.sort((a, b) => a.avg - b.avg);
+}
+
+function calcFrequency(networkObj) {
+    const stations = Object.keys(networkObj);
+    let counts = {};
+    stations.forEach(s => counts[s] = 0);
+
+    for (let i = 0; i < stations.length; i++) {
+        for (let j = i + 1; j < stations.length; j++) {
+            let start = stations[i], end = stations[j];
+            let q = [[start]];
+            let shortestPaths = [];
+            let minLen = Infinity;
+            let visited = { [start]: 0 };
+
+            while (q.length > 0) {
+                let path = q.shift();
+                let curr = path[path.length - 1];
+
+                if (path.length > minLen) continue;
+                if (curr === end) {
+                    if (path.length < minLen) { minLen = path.length; shortestPaths = [path]; }
+                    else if (path.length === minLen) { shortestPaths.push(path); }
+                    continue;
+                }
+
+                networkObj[curr].forEach(neighbor => {
+                    if (visited[neighbor] === undefined || visited[neighbor] >= path.length) {
+                        visited[neighbor] = path.length;
+                        q.push([...path, neighbor]);
+                    }
+                });
+            }
+            let routeNodes = new Set();
+            shortestPaths.forEach(p => {
+                for (let k = 1; k < p.length - 1; k++) routeNodes.add(p[k]);
+            });
+            routeNodes.forEach(n => counts[n]++);
+        }
+    }
+    let results = [];
+    for (const [name, c] of Object.entries(counts)) {
+        results.push({ name: name, routes: c });
+    }
+    return results.sort((a, b) => b.routes - a.routes);
+}
+
+function buildTableHTML(data, type) {
+    let html = '';
+    data.forEach((r, i) => {
+        let badge = (i===0)?'rank-gold':(i===1)?'rank-silver':(i===2)?'rank-bronze':(i>=data.length-3)?'rank-danger':'rank-standard';
+        let valText = type === 'avg' ? `${r.avg.toFixed(2)} stops` : `${r.routes} cross here`;
+        html += `<tr>
+            <td><span class="rank-badge ${badge}">${i+1}</span></td>
+            <td style="font-weight: 600;">${r.name}</td>
+            <td class="coord-val">${valText}</td>
+        </tr>`;
+    });
+    return html;
+}
+
+function renderLeaderboards() {
+    document.getElementById('full-avg-body').innerHTML = buildTableHTML(calcCloseness(networkFull), 'avg');
+    document.getElementById('full-freq-body').innerHTML = buildTableHTML(calcFrequency(networkFull), 'freq');
+    document.getElementById('nogray-avg-body').innerHTML = buildTableHTML(calcCloseness(networkNoGray), 'avg');
+    document.getElementById('nogray-freq-body').innerHTML = buildTableHTML(calcFrequency(networkNoGray), 'freq');
+}
+</script>
+
+</body>
+</html>

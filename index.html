@@ -211,7 +211,6 @@
         </div>
     </div>
 
-    <!-- SECTION 1: COORDINATE CALCULATOR -->
     <div id="calculator" class="section active">
         <div class="controls-panel">
             <div class="control-group">
@@ -245,7 +244,6 @@
         </div>
     </div>
 
-    <!-- SECTION 2: ROUTE NAVIGATOR -->
     <div id="navigator" class="section">
         <div class="controls-panel">
             <div class="control-group">
@@ -275,7 +273,6 @@
         </div>
     </div>
 
-    <!-- SECTION 3: NETWORK ANALYTICS -->
     <div id="analytics" class="section">
         <div class="sub-tabs">
             <button class="sub-tab-btn active" id="btn-ana-full" onclick="setAnalyticsTab('full')">Full Network (With Gray Line)</button>
@@ -283,7 +280,6 @@
         </div>
 
         <div class="analytics-grid">
-            <!-- Full Network View -->
             <div id="analytics-full" class="analytics-view active">
                 <div class="table-container">
                     <h3 style="padding: 16px 16px 0; margin:0; color: var(--primary);">Avg Commute (Closeness)</h3>
@@ -301,7 +297,6 @@
                 </div>
             </div>
 
-            <!-- No Gray Line View -->
             <div id="analytics-nogray" class="analytics-view">
                 <div class="table-container">
                     <h3 style="padding: 16px 16px 0; margin:0; color: var(--primary);">Avg Commute (Closeness)</h3>
@@ -337,11 +332,11 @@ const nodes = [
     {id: 'Atrium', rx: -1.3, rz: 0}, {id: 'Red Light', rx: -0.7, rz: 0}, {id: 'Dizzy Fountain', rx: 2, rz: 0},
     {id: 'Chasm', rx: 3.5, rz: 0}, {id: 'Livia', rx: 4.7, rz: 0}, {id: 'Tangent', rx: 5.35, rz: 0},
     {id: 'Treetop', rx: 6, rz: 0}, {id: 'Atoll', rx: 4.25, rz: 1.5}, {id: 'Lollipop', rx: 6, rz: 1.5},
-    {id: 'Pyramid', rx: 1, rz: 1.5}, {id: 'Lilycave', rx: -0.5, rz: 1.5}, {id: 'Two-Tops', rx: 7, rz: 0.75},
-    {id: 'Parkside', rx: 7, rz: 1.5}, {id: 'Stone Mountain', rx: 8, rz: 1.5}, {id: 'Aquarium', rx: 9, rz: 1.5},
-    {id: 'Ondel', rx: 9, rz: 3.8}, {id: 'Lave', rx: 7.5, rz: 3.8}, {id: 'Mini Valley', rx: 2.5, rz: 3.8},
-    {id: 'Highgate', rx: -3.75, rz: 3.8}, {id: 'Mount Wave', rx: -4.5, rz: 3.5}, {id: 'Baycove', rx: -0.8, rz: 0.85},
-    {id: 'Village', rx: -1, rz: 2.5}, {id: 'Lake Valley', rx: -4.75, rz: 0.5}
+    {id: 'Pyramid', rx: 1, rz: 1.5}, {id: 'Blue Orchid', rx: 4, rz: 1.15}, {id: 'Lilycave', rx: -0.5, rz: 1.5}, 
+    {id: 'Two-Tops', rx: 7, rz: 0.75}, {id: 'Parkside', rx: 7, rz: 1.5}, {id: 'Stone Mountain', rx: 8, rz: 1.5}, 
+    {id: 'Aquarium', rx: 9, rz: 1.5}, {id: 'Ondel', rx: 9, rz: 3.8}, {id: 'Lave', rx: 7.5, rz: 3.8}, 
+    {id: 'Mini Valley', rx: 2.5, rz: 3.8}, {id: 'Highgate', rx: -3.75, rz: 3.8}, {id: 'Mount Wave', rx: -4.5, rz: 3.5}, 
+    {id: 'Baycove', rx: -0.8, rz: 0.85}, {id: 'Village', rx: -1, rz: 2.5}, {id: 'Lake Valley', rx: -4.75, rz: 0.5}
 ];
 
 const networkFull = {

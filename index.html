@@ -365,13 +365,24 @@ const networkFull = {
 };
 
 // No Gray Line Network Logic
-const networkNoGray = JSON.parse(JSON.stringify(networkFull));
-delete networkNoGray["Lake Valley"];
-networkNoGray["Solaris"] = ["Avelon"];
-networkNoGray["Clover"] = ["Tree Island"];
-networkNoGray["Livia"] = ["Chasm", "Tangent"];
-networkNoGray["Chasm"] = ["Dizzy Fountain", "Livia"];
-networkNoGray["Aquarium"] = ["Stone Mountain", "Ondel"];
+// ==========================================
+// DYNAMIC BASE NETWORK (No Gray Line & No Diamond Line)
+// ==========================================
+const networkBase = JSON.parse(JSON.stringify(networkFull));
+
+// 1. Strip the Gray Line
+delete networkBase["Lake Valley"];
+networkBase["Solaris"] = networkBase["Solaris"].filter(s => s !== "Lake Valley");
+networkBase["Clover"] = networkBase["Clover"].filter(s => s !== "Lake Valley" && s !== "Livia");
+networkBase["Livia"] = networkBase["Livia"].filter(s => s !== "Clover" && s !== "Aquarium");
+networkBase["Aquarium"] = networkBase["Aquarium"].filter(s => s !== "Livia" && s !== "Chasm");
+networkBase["Chasm"] = networkBase["Chasm"].filter(s => s !== "Aquarium");
+
+// 2. Strip the Diamond Line
+networkBase["Sandy Coast"] = networkBase["Sandy Coast"].filter(s => s !== "Tangent");
+networkBase["Tangent"] = networkBase["Tangent"].filter(s => s !== "Sandy Coast" && s !== "Two-Tops");
+networkBase["Two-Tops"] = networkBase["Two-Tops"].filter(s => s !== "Tangent" && s !== "Pyramid");
+networkBase["Pyramid"] = networkBase["Pyramid"].filter(s => s !== "Two-Tops");
 
 const stationNames = Object.keys(networkFull).sort();
 

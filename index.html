@@ -457,7 +457,7 @@ function calculateRoute() {
     const start = document.getElementById('start-station').value;
     const end = document.getElementById('end-station').value;
     const mode = document.getElementById('route-network').value;
-    const graph = mode === 'full' ? networkFull : networkNoGray;
+    const graph = mode === 'full' ? networkFull : networkBase;
     
     const outputContainer = document.getElementById('route-output-container');
     const summaryEl = document.getElementById('route-summary');
@@ -603,8 +603,8 @@ function buildTableHTML(data, type) {
 function renderLeaderboards() {
     document.getElementById('full-avg-body').innerHTML = buildTableHTML(calcCloseness(networkFull), 'avg');
     document.getElementById('full-freq-body').innerHTML = buildTableHTML(calcFrequency(networkFull), 'freq');
-    document.getElementById('nogray-avg-body').innerHTML = buildTableHTML(calcCloseness(networkNoGray), 'avg');
-    document.getElementById('nogray-freq-body').innerHTML = buildTableHTML(calcFrequency(networkNoGray), 'freq');
+    document.getElementById('nogray-avg-body').innerHTML = buildTableHTML(calcCloseness(networkBase), 'avg');
+    document.getElementById('nogray-freq-body').innerHTML = buildTableHTML(calcFrequency(networkBase), 'freq');
 }
 </script>
 
